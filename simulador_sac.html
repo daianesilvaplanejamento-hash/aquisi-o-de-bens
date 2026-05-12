@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulação Tabela SAC</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#0C769E;--mid:#31AFBE;--light:#DAEEF3;--offwht:#F3F3F3;
+  --white:#FFFFFF;--gold:#E8C04A;--gold-lt:#FFF8E1;--gold-drk:#7a5500;
+  --green:#27AE60;--green-lt:#eafaf1;--red:#C0392B;
+  --border:#b8dde8;--shadow:0 2px 14px rgba(12,118,158,.10);
+  --text:#1a1a1a;--subtext:#666;
+}
+body{font-family:'Nunito',sans-serif;background:var(--offwht);min-height:100vh;}
+.ph{background:var(--dark);padding:14px 36px;display:flex;align-items:center;justify-content:space-between;}
+.ph .brand{color:#fff;font-size:12px;font-weight:700;opacity:.8;}
+.ph h1{color:#fff;font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;}
+.ph .sig{color:#fff;font-size:11px;font-weight:600;opacity:.7;text-align:right;line-height:1.6;}
+.wrap{max-width:1300px;margin:24px auto;padding:0 18px 50px;}
+.main-layout{display:grid;grid-template-columns:1fr 260px;gap:18px;align-items:start;}
+.inputs-block{background:var(--white);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:14px;}
+.inputs-grid{display:grid;grid-template-columns:repeat(6,1fr);}
+.inp-cell{border-right:1px solid var(--border);}
+.inp-cell:last-child{border-right:none;}
+.inp-cell .lbl{background:var(--dark);color:#fff;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.3px;padding:7px 10px;text-align:center;}
+.inp-cell .val input{width:100%;border:none;background:var(--white);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:var(--dark);padding:8px 10px;text-align:center;outline:none;}
+.inp-cell .val input:focus{background:#d4eef5;}
+.inp-cell .val.computed{padding:8px 10px;text-align:center;font-size:13px;font-weight:800;color:var(--dark);background:var(--light);}
+.tbl-container{background:var(--white);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;}
+.tbl-scroll{overflow-y:auto;max-height:560px;}
+.tbl-scroll::-webkit-scrollbar{width:5px;}
+.tbl-scroll::-webkit-scrollbar-thumb{background:var(--mid);border-radius:3px;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead th{position:sticky;top:0;z-index:2;background:var(--dark);color:#fff;font-weight:800;font-size:10px;text-transform:uppercase;letter-spacing:.3px;padding:8px 6px;text-align:center;border-right:1px solid rgba(255,255,255,.15);}
+thead th:last-child{border-right:none;}
+thead th.gold-hdr{background:var(--gold);color:var(--gold-drk);}
+tbody tr{border-bottom:1px solid var(--border);}
+tbody tr:nth-child(even){background:#f7fbfc;}
+tbody tr:hover{background:#e8f5fa;}
+tbody tr.fgts-row{background:var(--gold-lt)!important;border-left:3px solid var(--gold);}
+tbody td{padding:5px 6px;text-align:center;color:var(--text);font-size:11px;border-right:1px solid var(--border);}
+tbody td:last-child{border-right:none;}
+tbody td.mes-cell{background:var(--gold);color:var(--gold-drk);font-weight:800;font-size:11px;}
+tbody tr.fgts-row td.mes-cell{background:#c9960a;color:#fff;}
+tbody td.neg{color:var(--red);}
+tbody td.hi{color:var(--dark);font-weight:700;}
+tbody td.extra-cell{background:var(--gold-lt);padding:3px 4px;}
+tbody td.extra-empty{padding:3px 4px;}
+.inp-extra{width:100%;border:1.5px solid transparent;border-radius:4px;background:transparent;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;color:var(--gold-drk);padding:4px 5px;text-align:center;outline:none;transition:border-color .15s;}
+.inp-extra:focus{border-color:var(--gold);background:#fff8e1;}
+.inp-extra.libre{color:var(--dark);}
+.inp-extra.libre:focus{border-color:var(--mid);background:#eaf6fb;}
+.fgts-badge{display:inline-block;background:#c9960a;color:#fff;font-size:9px;font-weight:800;border-radius:3px;padding:1px 4px;margin-left:3px;vertical-align:middle;}
+tfoot tr td{background:var(--dark);color:#fff;font-weight:800;font-size:11px;padding:7px 6px;text-align:center;border-right:1px solid rgba(255,255,255,.2);}
+.right-col{display:flex;flex-direction:column;gap:14px;}
+.side-block{background:var(--white);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;}
+.side-title{font-size:12px;font-weight:800;padding:9px 14px;text-align:center;letter-spacing:.3px;}
+.side-title.blue{background:var(--dark);color:#fff;}
+.side-title.mid{background:var(--mid);color:#fff;}
+.side-title.gold{background:var(--gold);color:var(--gold-drk);}
+.side-row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:1px solid var(--border);font-size:12px;gap:8px;}
+.side-row:last-child{border-bottom:none;}
+.side-row .slbl{color:var(--subtext);font-weight:600;flex:1;line-height:1.4;font-size:11px;}
+.side-row .sval{font-weight:800;color:var(--dark);white-space:nowrap;font-size:12px;}
+.side-row .sval.neg{color:var(--red);}
+.side-row .sval.pos{color:var(--green);}
+.side-inp{width:105px;border:1.5px solid var(--border);border-radius:5px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;color:var(--dark);padding:5px 8px;text-align:center;outline:none;background:var(--light);}
+.side-inp:focus{border-color:var(--mid);background:#fff;}
+.toggle-wrap{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid var(--border);}
+.toggle-btn{flex:1;padding:6px 4px;border:1.5px solid var(--border);border-radius:6px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;color:var(--subtext);background:var(--white);cursor:pointer;transition:all .2s;text-align:center;}
+.toggle-btn.active{border-color:var(--dark);background:var(--dark);color:#fff;}
+.fgts-info{background:var(--gold-lt);border:1px solid var(--gold);border-radius:7px;padding:9px 12px;margin:8px 12px 4px;font-size:10px;color:var(--gold-drk);line-height:1.7;font-weight:600;}
+.fgts-info strong{font-weight:800;}
+.slider-wrap{padding:10px 12px 12px;}
+.slider-wrap label{font-size:10px;font-weight:800;color:var(--subtext);display:block;margin-bottom:5px;text-transform:uppercase;}
+input[type=range]{width:100%;accent-color:var(--mid);}
+.page-footer{text-align:center;font-size:11px;color:#aaa;font-weight:600;font-style:italic;margin-top:18px;}
+.resumo-final{margin-top:28px;}
+.resumo-final-title{text-align:center;font-size:15px;font-weight:800;color:var(--dark);letter-spacing:.5px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:10px;}
+.resumo-final-title::before,.resumo-final-title::after{content:'';flex:1;height:2px;background:linear-gradient(90deg,transparent,var(--mid));}
+.resumo-final-title::after{background:linear-gradient(90deg,var(--mid),transparent);}
+.resumo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.resumo-card{background:var(--white);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;}
+.resumo-card-hdr{padding:11px 16px;text-align:center;font-size:12px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;}
+.resumo-card-hdr.sem{background:var(--dark);color:#fff;}
+.resumo-card-hdr.com{background:var(--mid);color:#fff;}
+.resumo-card-hdr.ben{background:var(--green);color:#fff;}
+.resumo-card-row{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid var(--border);gap:8px;}
+.resumo-card-row:last-child{border-bottom:none;}
+.resumo-card-lbl{font-size:11px;font-weight:600;color:var(--subtext);flex:1;line-height:1.4;}
+.resumo-card-val{font-size:12px;font-weight:800;color:var(--dark);white-space:nowrap;}
+.resumo-card-val.neg{color:var(--red);}
+.resumo-card-val.pos{color:var(--green);}
+.resumo-card-val.neutral{color:var(--dark);}
+.resumo-card-row.destaque{background:var(--light);}
+.resumo-card-row.destaque .resumo-card-val{color:var(--dark);font-size:13px;}
+</style>
+</head>
+<body>
+<header class="ph">
+<div class="brand">SLV Estratégia Financeira</div>
+<h1>Simulação Tabela SAC</h1>
+<div class="sig">CEA · CVM<br>contato@daianejsilva.com.br</div>
+</header>
+<div class="wrap">
+<div class="main-layout">
+<div class="left-col">
+<div class="inputs-block">
+<div class="inputs-grid">
+<div class="inp-cell">
+<div class="lbl">Valor Financiado</div>
+<div class="val" style="position:relative;display:flex;align-items:center;">
+<span style="position:absolute;left:10px;font-size:13px;font-weight:800;color:var(--dark);pointer-events:none;">R$</span>
+<input type="text" id="valor" value="0,00" min="0" style="padding-left:30px;" oninput="formatValorInput(this);recalc()" onblur="formatValorBlur(this)" onkeydown="return allowValorKey(event)">
+</div>
+</div>
+<div class="inp-cell">
+<div class="lbl">Prazo (meses)</div>
+<div class="val"><input type="number" id="prazo" value="420" min="1" max="600" oninput="recalc()"></div>
+</div>
+<div class="inp-cell">
+<div class="lbl">Taxa Anual C.E.T.</div>
+<div class="val"><input type="number" id="taxaAnual" value="12" min="0" step="0.0001" oninput="recalc()"></div>
+</div>
+<div class="inp-cell">
+<div class="lbl">Taxa Mensal</div>
+<div class="val computed" id="taxaMensalDisp">—</div>
+</div>
+<div class="inp-cell">
+<div class="lbl">Prestação Máxima</div>
+<div class="val computed" id="prestMaxDisp">R$ 0,00</div>
+</div>
+<div class="inp-cell">
+<div class="lbl">Renda Mínima (30%)</div>
+<div class="val computed" id="rendaMinDisp">R$ 0,00</div>
+</div>
+</div>
+</div>
+<div class="tbl-container">
+<div class="tbl-scroll">
+<table>
+<thead>
+<tr>
+<th style="width:6%">Mês</th>
+<th style="width:16%">Saldo Inicial</th>
+<th style="width:13%">Juros</th>
+<th style="width:13%">Amortização</th>
+<th style="width:14%">Prestação</th>
+<th style="width:16%">Saldo Devedor</th>
+<th class="gold-hdr" style="width:16%" id="extraColHdr">Amort. Extra</th>
+</tr>
+</thead>
+<tbody id="sacBody"></tbody>
+<tfoot id="sacFoot"></tfoot>
+</table>
+</div>
+</div>
+</div>
+<div class="right-col">
+<div class="side-block">
+<div class="side-title blue">Resumo</div>
+<div class="side-row"><span class="slbl">Juros totais:</span><span class="sval neg" id="jurosDevidos">R$ 0,00</span></div>
+<div class="side-row"><span class="slbl">Principal:</span><span class="sval" id="principalDevido">R$ 0,00</span></div>
+<div class="side-row"><span class="slbl">Total pago:</span><span class="sval" id="totalPago">R$ 0,00</span></div>
+<div class="side-row"><span class="slbl">Prazo efetivo:</span><span class="sval" id="mesesEfetivos">—</span></div>
+</div>
+<div class="side-block">
+<div class="side-title gold">Amortização</div>
+<div class="toggle-wrap">
+<button class="toggle-btn active" id="btnLivre" onclick="setModo('livre')">✏️ Livre</button>
+<button class="toggle-btn" id="btnFgts" onclick="setModo('fgts')">🏦 FGTS (24m)</button>
+</div>
+<div id="fgtsSection" style="display:none;">
+<div class="fgts-info">
+<strong>Regra FGTS:</strong><br>• Amortização a cada <strong>24 meses</strong><br>• Depósito: <strong>8% do salário bruto/mês</strong><br>• Rendimento: <strong>TR + 3% a.a.</strong>
+</div>
+<div class="side-row">
+<span class="slbl">Renda bruta mensal</span>
+<div style="position:relative;display:flex;align-items:center;">
+<span style="position:absolute;left:8px;font-size:12px;font-weight:800;color:var(--dark);pointer-events:none;">R$</span>
+<input type="text" class="side-inp" id="rendaBruta" value="0,00" style="padding-left:26px;width:105px;" oninput="formatRendaInput(this);recalc()" onblur="formatRendaBlur(this)" onkeydown="return allowValorKey(event)">
+</div>
+</div>
+<div class="side-row"><span class="slbl">Depósito mensal FGTS</span><span class="sval pos" id="depositoMensal">R$ 0,00</span></div>
+<div class="side-row"><span class="slbl">FGTS acumulado em 24m</span><span class="sval pos" id="fgtsAcum24">R$ 0,00</span></div>
+</div>
+<div id="livreSection">
+<div style="padding:10px 12px;font-size:11px;color:var(--subtext);line-height:1.6;border-bottom:1px solid var(--border);">
+Digite qualquer valor na coluna <strong>Amort. Extra</strong> em qualquer mês da tabela.
+</div>
+</div>
+</div>
+<div class="side-block">
+<div class="side-title mid">Navegação</div>
+<div class="slider-wrap">
+<label>Ir para o mês: <strong id="sliderVal">1</strong></label>
+<input type="range" id="mesSlider" min="1" max="420" value="1" oninput="scrollToMes(this.value)">
+</div>
+</div>
+<div class="side-block">
+<div class="side-title blue" style="font-size:10px;">Atenção</div>
+<div style="padding:10px 12px;font-size:10px;color:var(--subtext);line-height:1.6;">
+Simulação com <strong>Tabela SAC</strong>. Valores do FGTS são estimativas.
+</div>
+</div>
+</div>
+</div>
+<div class="resumo-final">
+<div class="resumo-final-title">Resumo Comparativo</div>
+<div class="resumo-grid">
+<div class="resumo-card">
+<div class="resumo-card-hdr sem">📋 Sem Amortização</div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">Juros totais</span><span class="resumo-card-val neg" id="r1-juros">R$ 0,00</span></div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">Principal</span><span class="resumo-card-val neutral" id="r1-principal">R$ 0,00</span></div>
+<div class="resumo-card-row destaque"><span class="resumo-card-lbl">Total pago</span><span class="resumo-card-val" id="r1-total">R$ 0,00</span></div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">Prazo efetivo</span><span class="resumo-card-val neutral" id="r1-meses">— meses</span></div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">Prazo em anos</span><span class="resumo-card-val neutral" id="r1-anos">— anos</span></div>
+</div>
+<div class="resumo-card">
+<div class="resumo-card-hdr com">📋 Com Amortização</div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">Juros totais</span><span class="resumo-card-val neg" id="r2-juros">R$ 0,00</span></div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">Principal</span><span class="resumo-card-val neutral" id="r2-principal">R$ 0,00</span></div>
+<div class="resumo-card-row destaque"><span class="resumo-card-lbl">Total pago</span><span class="resumo-card-val" id="r2-total">R$ 0,00</span></div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">Prazo efetivo</span><span class="resumo-card-val neutral" id="r2-meses">— meses</span></div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">Prazo em anos</span><span class="resumo-card-val neutral" id="r2-anos">— anos</span></div>
+</div>
+<div class="resumo-card">
+<div class="resumo-card-hdr ben">🎯 Benefício da Amortização</div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">💰 Economia em juros</span><span class="resumo-card-val pos" id="r3-juros">R$ 0,00</span></div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">💳 Redução no total pago</span><span class="resumo-card-val pos" id="r3-total">R$ 0,00</span></div>
+<div class="resumo-card-row destaque"><span class="resumo-card-lbl">✅ % de juros economizados</span><span class="resumo-card-val pos" id="r3-pct">0%</span></div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">📅 Meses economizados</span><span class="resumo-card-val pos" id="r3-meses">— meses</span></div>
+<div class="resumo-card-row"><span class="resumo-card-lbl">🗓️ Anos economizados</span><span class="resumo-card-val pos" id="r3-anos">— anos</span></div>
+</div>
+</div>
+</div>
+<footer class="page-footer">Daiane Jaqueline da Silva Soares &nbsp;|&nbsp; Planejadora Financeira · CEA | CVM &nbsp;|&nbsp; contato@daianejsilva.com.br</footer>
+</div>
+<script>
+const fmtBRL = v => isFinite(v)&&!isNaN(v) ? v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : 'R$ 0,00';
+const fmtPct = (v,d=4) => isFinite(v)&&!isNaN(v) ? (v*100).toFixed(d).replace('.',',')+'%' : '—';
+const TAXA_FGTS_MES = Math.pow(1.03, 1/12) - 1;
+const FGTS_CICLO = 24;
+let modo = 'livre';
+let extraLivre = {};
+function allowValorKey(e){
+  const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+  if(allowed.includes(e.key)) return true;
+  if(e.key === ',' || e.key === '.') return true;
+  if(e.key >= '0' && e.key <= '9') return true;
+  e.preventDefault(); return false;
+}
+function parseValorInput(el){
+  let raw = el.value.replace(/[^\d,\.]/g,'');
+  raw = raw.replace(/\./g,'').replace(',','.');
+  return parseFloat(raw) || 0;
+}
+function formatValorInput(el){ el.value = el.value.replace(/[^\d,\.]/g,''); }
+function formatValorBlur(el){
+  const v = parseValorInput(el);
+  el.value = v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  recalc();
+}
+function getValorFinanciado(){ return parseValorInput(document.getElementById('valor')); }
+function formatRendaInput(el){ el.value = el.value.replace(/[^\d,\.]/g,''); }
+function formatRendaBlur(el){
+  const raw = el.value.replace(/\./g,'').replace(',','.');
+  const v = parseFloat(raw) || 0;
+  el.value = v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  recalc();
+}
+function getRendaBruta(){
+  const el = document.getElementById('rendaBruta');
+  const raw = el.value.replace(/\./g,'').replace(',','.');
+  return parseFloat(raw) || 0;
+}
+function setModo(m){
+  modo = m;
+  document.getElementById('btnLivre').classList.toggle('active', m==='livre');
+  document.getElementById('btnFgts').classList.toggle('active', m==='fgts');
+  document.getElementById('fgtsSection').style.display = m==='fgts' ? '' : 'none';
+  document.getElementById('livreSection').style.display = m==='livre' ? '' : 'none';
+  document.getElementById('extraColHdr').textContent = m==='fgts' ? 'Amort. Extra (FGTS)' : 'Amortização Extra';
+  recalc();
+}
+function recalc(){
+  const PV = getValorFinanciado();
+  const n = parseInt(document.getElementById('prazo').value) || 420;
+  const taxaA = parseFloat(document.getElementById('taxaAnual').value) || 12;
+  const r = Math.pow(1 + taxaA/100, 1/12) - 1;
+  const rendaBruta = getRendaBruta();
+  const depositoMes = rendaBruta * 0.08;
+  document.getElementById('taxaMensalDisp').textContent = fmtPct(r);
+  const slider = document.getElementById('mesSlider');
+  slider.max = n;
+  if(parseInt(slider.value) > n) slider.value = n;
+  const amortBase = PV > 0 ? PV / n : 0;
+  const prestMax = amortBase + PV * r;
+  document.getElementById('prestMaxDisp').textContent = fmtBRL(prestMax);
+  document.getElementById('rendaMinDisp').textContent = fmtBRL(prestMax / 0.30);
+  const fgtsExtra = {};
+  if(modo === 'fgts' && depositoMes > 0){
+    let acum = 0;
+    for(let i = 1; i <= n; i++){
+      acum = acum * (1 + TAXA_FGTS_MES) + depositoMes;
+      if(i % FGTS_CICLO === 0){ fgtsExtra[i] = acum; acum = 0; }
+    }
+    document.getElementById('depositoMensal').textContent = fmtBRL(depositoMes);
+    const acum24 = depositoMes * (Math.pow(1+TAXA_FGTS_MES, FGTS_CICLO)-1) / TAXA_FGTS_MES;
+    document.getElementById('fgtsAcum24').textContent = fmtBRL(acum24);
+  }
+  const tbody = document.getElementById('sacBody');
+  tbody.innerHTML = '';
+  let totalJ = 0, totalP = 0, totalA = 0, mesesSem = 0;
+  let saldoSim = PV;
+  for(let i = 1; i <= n; i++){
+    if(saldoSim <= 0.005) break;
+    mesesSem = i;
+    const amort = Math.min(amortBase, saldoSim);
+    const juros = saldoSim * r;
+    totalJ += juros; totalP += amort + juros; totalA += amort;
+    saldoSim = saldoSim - amort;
+  }
+  let saldo = PV, totalJx = 0, totalPx = 0, mesesCom = 0;
+  for(let i = 1; i <= n; i++){
+    if(saldo <= 0.005) break;
+    mesesCom = i;
+    const saldoIni = saldo;
+    const amort = Math.min(amortBase, saldoIni);
+    const juros = saldoIni * r;
+    const prest = amort + juros;
+    const saldoDev = saldoIni - amort;
+    let extra = 0;
+    if(modo === 'fgts'){ extra = fgtsExtra[i] || 0; extra = Math.min(extra, Math.max(0, saldoDev)); }
+    else { extra = parseFloat(extraLivre[i]) || 0; extra = Math.min(extra, Math.max(0, saldoDev)); }
+    if(extra > 0) totalJx += juros; else totalJx += juros;
+    totalPx += prest + extra;
+    const saldoDevFinal = Math.max(0, saldoDev - extra);
+    const isFgts = (modo === 'fgts') && (i % FGTS_CICLO === 0) && depositoMes > 0;
+    const tr = document.createElement('tr');
+    if(isFgts) tr.className = 'fgts-row';
+    let extraCell = '';
+    if(modo === 'fgts'){
+      if(isFgts && extra > 0) extraCell = `<td class="extra-cell" title="FGTS acumulado"><strong>${fmtBRL(extra)}</strong></td>`;
+      else if(isFgts) extraCell = `<td class="extra-cell" style="color:#bbb;font-size:10px;">saldo insuf.</td>`;
+      else extraCell = `<td style="color:#ddd;font-size:10px;">—</td>`;
+    } else {
+      extraCell = `<td class="extra-empty"><input class="inp-extra libre" type="number" min="0" value="${extraLivre[i]||''}" placeholder="—" data-mes="${i}" oninput="extraLivre[${i}]=parseFloat(this.value)||0;recalc()"></td>`;
+    }
+    tr.innerHTML = `<td class="mes-cell">${i}${isFgts?'<span class="fgts-badge">FGTS</span>':''}</td><td>${fmtBRL(saldoIni)}</td><td class="neg">${fmtBRL(juros)}</td><td class="hi">${fmtBRL(amort)}</td><td class="hi">${fmtBRL(prest)}</td><td>${fmtBRL(saldoDev)}</td>${extraCell}`;
+    tbody.appendChild(tr);
+    saldo = saldoDevFinal;
+  }
+  document.getElementById('sacFoot').innerHTML = `<tr><td>TOTAL</td><td>—</td><td>${fmtBRL(totalJ)}</td><td>${fmtBRL(totalA)}</td><td>${fmtBRL(totalP)}</td><td>—</td><td>—</td></tr>`;
+  document.getElementById('jurosDevidos').textContent = fmtBRL(totalJ);
+  document.getElementById('principalDevido').textContent = fmtBRL(PV);
+  document.getElementById('totalPago').textContent = fmtBRL(totalP);
+  document.getElementById('mesesEfetivos').textContent = mesesSem + ' meses';
+  const fmtAnos = m => { const anos = Math.floor(m/12); const meses = m%12; if(anos===0) return meses+' meses'; if(meses===0) return anos+' ano'+(anos>1?'s':''); return anos+' ano'+(anos>1?'s':'')+' e '+meses+' mês'+(meses>1?'es':''); };
+  document.getElementById('r1-juros').textContent = fmtBRL(totalJ);
+  document.getElementById('r1-principal').textContent = fmtBRL(PV);
+  document.getElementById('r1-total').textContent = fmtBRL(totalP);
+  document.getElementById('r1-meses').textContent = mesesSem + ' meses';
+  document.getElementById('r1-anos').textContent = fmtAnos(mesesSem);
+  document.getElementById('r2-juros').textContent = fmtBRL(totalJx);
+  document.getElementById('r2-principal').textContent = fmtBRL(PV);
+  document.getElementById('r2-total').textContent = fmtBRL(totalPx);
+  document.getElementById('r2-meses').textContent = mesesCom + ' meses';
+  document.getElementById('r2-anos').textContent = fmtAnos(mesesCom);
+  const econJ = Math.max(0, totalJ - totalJx);
+  const econT = Math.max(0, totalP - totalPx);
+  const econM = Math.max(0, mesesSem - mesesCom);
+  const pctEcon = totalJ > 0 ? (econJ/totalJ*100).toFixed(1).replace('.',',')+'%' : '0%';
+  document.getElementById('r3-juros').textContent = fmtBRL(econJ);
+  document.getElementById('r3-total').textContent = fmtBRL(econT);
+  document.getElementById('r3-pct').textContent = pctEcon;
+  document.getElementById('r3-meses').textContent = econM + ' meses';
+  document.getElementById('r3-anos').textContent = fmtAnos(econM);
+}
+function scrollToMes(val){
+  document.getElementById('sliderVal').textContent = val;
+  const rows = document.querySelectorAll('#sacBody tr');
+  const row = rows[val-1];
+  if(row){ row.scrollIntoView({block:'center',behavior:'smooth'}); row.style.outline='2px solid var(--mid)'; setTimeout(()=>{row.style.outline='';},1200); }
+}
+window.onload = recalc;
+</script>
+</body>
+</html>
