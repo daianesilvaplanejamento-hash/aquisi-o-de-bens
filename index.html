@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aquisição de Bens – SLV Estratégia Financeira</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#0C769E;--mid:#31AFBE;--light:#DAEEF3;--offwht:#F3F3F3;
+  --white:#FFFFFF;--gold:#E8C04A;--gold-drk:#7a5500;
+  --border:#b8dde8;--shadow:0 2px 14px rgba(12,118,158,.10);
+  --text:#1a1a1a;--subtext:#666;
+}
+body{font-family:'Nunito',sans-serif;background:var(--offwht);min-height:100vh;
+  display:flex;flex-direction:column;}
+.ph{background:var(--dark);padding:14px 36px;display:flex;align-items:center;
+  justify-content:space-between;flex-shrink:0;}
+.ph .brand{color:#fff;font-size:12px;font-weight:700;opacity:.8;}
+.ph h1{color:#fff;font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;}
+.ph .sig{color:#fff;font-size:11px;font-weight:600;opacity:.7;text-align:right;line-height:1.6;}
+.tabs-bar{background:var(--white);border-bottom:2px solid var(--border);
+  box-shadow:0 2px 8px rgba(12,118,158,.08);flex-shrink:0;
+  display:flex;align-items:stretch;overflow-x:auto;padding:0 16px;}
+.tabs-bar::-webkit-scrollbar{height:3px;}
+.tabs-bar::-webkit-scrollbar-thumb{background:var(--mid);border-radius:2px;}
+.tab{display:flex;align-items:center;gap:7px;padding:0 20px;height:48px;
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;
+  color:var(--subtext);cursor:pointer;border:none;background:transparent;
+  border-bottom:3px solid transparent;margin-bottom:-2px;
+  white-space:nowrap;transition:all .2s;flex-shrink:0;}
+.tab:hover{color:var(--dark);background:var(--light);}
+.tab.active{color:var(--dark);font-weight:800;border-bottom-color:var(--dark);background:var(--offwht);}
+.tab .tab-icon{font-size:15px;}
+.iframe-wrap{flex:1;display:flex;flex-direction:column;}
+.iframe-wrap iframe{flex:1;width:100%;border:none;min-height:calc(100vh - 110px);}
+.loading-overlay{position:absolute;inset:0;background:var(--offwht);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;z-index:10;pointer-events:none;transition:opacity .3s;}
+.loading-overlay.hidden{opacity:0;}
+.loader{width:36px;height:36px;border:3px solid var(--border);
+  border-top-color:var(--dark);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay p{font-size:12px;font-weight:700;color:var(--subtext);}
+.frame-container{position:relative;flex:1;display:flex;flex-direction:column;}
+</style>
+</head>
+<body>
+<header class="ph">
+<div class="brand">SLV Estratégia Financeira</div>
+<h1>Aquisição de Bens – Gestão Patrimonial</h1>
+<div class="sig">CEA · CVM<br>contato@daianejsilva.com.br</div>
+</header>
+<nav class="tabs-bar" role="tablist">
+<button class="tab active" onclick="switchTab(0)" id="tab-0" role="tab">
+<span class="tab-icon">📊</span> Avaliação de Aquisição de Bens
+</button>
+<button class="tab" onclick="switchTab(1)" id="tab-1" role="tab">
+<span class="tab-icon">🏠</span> Simulador de Financiamento – SAC
+</button>
+<button class="tab" onclick="switchTab(2)" id="tab-2" role="tab">
+<span class="tab-icon">🏦</span> Simulador de Financiamento – PRICE
+</button>
+<button class="tab" onclick="switchTab(3)" id="tab-3" role="tab">
+<span class="tab-icon">🤝</span> Simulador de Consórcio
+</button>
+<button class="tab" onclick="switchTab(4)" id="tab-4" role="tab">
+<span class="tab-icon">📈</span> Crescimento Patrimonial
+</button>
+</nav>
+<div class="iframe-wrap">
+<div class="frame-container">
+<div class="loading-overlay" id="loader">
+<div class="loader"></div>
+<p>Carregando...</p>
+</div>
+<iframe id="mainFrame" src="comparativo_aquisicao.html" title="Conteúdo da aba" onload="hideLoader()"></iframe>
+</div>
+</div>
+<script>
+const PAGES = [
+  'comparativo_aquisicao.html',
+  'simulador_sac.html',
+  'simulador_price.html',
+  'simulador_consorcio.html',
+  'simulador_patrimonial.html'
+];
+let currentTab = 0;
+function switchTab(idx){
+  if(idx === currentTab) return;
+  document.getElementById('tab-' + currentTab).classList.remove('active');
+  document.getElementById('tab-' + idx).classList.add('active');
+  currentTab = idx;
+  showLoader();
+  document.getElementById('mainFrame').src = PAGES[idx];
+}
+function showLoader(){ document.getElementById('loader').classList.remove('hidden'); }
+function hideLoader(){ document.getElementById('loader').classList.add('hidden'); }
+</script>
+</body>
+</html>
