@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Aquisição de Bens – Gestão Patrimonial</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#0C769E;--mid:#31AFBE;--light:#DAEEF3;--offwht:#F3F3F3;
+  --white:#FFFFFF;--gold:#E8C04A;--gold-lt:#FFF8E1;--gold-drk:#7a5500;
+  --green:#27AE60;--red:#C0392B;--purple:#8E44AD;--orange:#E67E22;
+  --border:#b8dde8;--shadow:0 2px 14px rgba(12,118,158,.10);
+  --text:#1a1a1a;--subtext:#555;
+  --avista:#27AE60;--avista-lt:#eafaf1;
+  --sac:#0C769E;--sac-lt:#e8f5fb;
+  --price:#8E44AD;--price-lt:#f5eefa;
+  --cons:#E67E22;--cons-lt:#fef3e8;
+}
+body{font-family:'Nunito',sans-serif;background:var(--offwht);min-height:100vh;}
+.ph{background:var(--dark);padding:14px 36px;display:flex;align-items:center;justify-content:space-between;}
+.ph .brand{color:#fff;font-size:12px;font-weight:700;opacity:.8;}
+.ph h1{color:#fff;font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;}
+.ph .sig{color:#fff;font-size:11px;font-weight:600;opacity:.7;text-align:right;line-height:1.6;}
+.wrap{max-width:1300px;margin:24px auto;padding:0 18px 50px;}
+.hero{text-align:center;margin-bottom:28px;}
+.hero h2{font-size:22px;font-weight:800;color:var(--dark);margin-bottom:6px;}
+.hero p{font-size:13px;color:var(--subtext);font-weight:600;}
+.cards-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px;}
+.mod-card{border-radius:12px;box-shadow:var(--shadow);overflow:hidden;}
+.mod-card-hdr{padding:14px 16px 10px;color:#fff;position:relative;}
+.mod-card-hdr .emoji{font-size:22px;display:block;margin-bottom:4px;}
+.mod-card-hdr .badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:800;
+  background:rgba(255,255,255,.25);color:#fff;padding:2px 8px;border-radius:20px;letter-spacing:.3px;}
+.mod-card-hdr h3{font-size:16px;font-weight:800;margin:0;}
+.mod-card-hdr.avista{background:linear-gradient(135deg,#1e8449,var(--avista));}
+.mod-card-hdr.sac{background:linear-gradient(135deg,#085d7e,var(--sac));}
+.mod-card-hdr.price{background:linear-gradient(135deg,#6c3483,var(--price));}
+.mod-card-hdr.cons{background:linear-gradient(135deg,#b9770e,var(--cons));}
+.mod-card-body{background:var(--white);padding:14px 16px;}
+.mod-row{display:flex;justify-content:space-between;align-items:center;
+  padding:6px 0;border-bottom:1px solid var(--border);font-size:11px;gap:8px;}
+.mod-row:last-child{border-bottom:none;}
+.mod-row .mlbl{color:var(--subtext);font-weight:600;flex:1;}
+.mod-row .mval{font-weight:800;color:var(--text);white-space:nowrap;font-size:12px;}
+.mod-row .mval.pos{color:var(--green);}
+.mod-row .mval.neg{color:var(--red);}
+.mod-row .mval.hi{color:var(--dark);}
+.mod-row.destaque{background:var(--light);margin:0 -16px;padding:6px 16px;}
+.mod-row.destaque .mval{font-size:13px;color:var(--dark);}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px;}
+.chart-card{background:var(--white);border-radius:12px;box-shadow:var(--shadow);padding:16px;}
+.chart-card .ct{font-size:12px;font-weight:800;color:var(--dark);text-transform:uppercase;
+  letter-spacing:.4px;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--border);}
+.chart-card canvas{max-height:220px;}
+.comp-block{background:var(--white);border-radius:12px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:28px;}
+.comp-block-hdr{background:var(--dark);color:#fff;padding:13px 20px;font-size:14px;font-weight:800;
+  letter-spacing:.4px;display:flex;align-items:center;gap:8px;}
+.comp-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.comp-tbl thead th{background:var(--dark);color:#fff;font-weight:800;font-size:10px;
+  text-transform:uppercase;letter-spacing:.3px;padding:9px 12px;text-align:center;
+  border-right:1px solid rgba(255,255,255,.15);}
+.comp-tbl thead th:first-child{text-align:left;background:#085d7e;}
+.comp-tbl thead th:last-child{border-right:none;}
+.comp-tbl thead th.h-avista{background:var(--avista);}
+.comp-tbl thead th.h-sac{background:var(--sac);}
+.comp-tbl thead th.h-price{background:var(--price);}
+.comp-tbl thead th.h-cons{background:var(--cons);}
+.comp-tbl tbody tr{border-bottom:1px solid var(--border);}
+.comp-tbl tbody tr:nth-child(even){background:#f7fbfc;}
+.comp-tbl tbody tr:hover{background:#e4f3f8;}
+.comp-tbl tbody tr.sec-row{background:var(--light)!important;}
+.comp-tbl tbody tr.sec-row td{font-weight:800;color:var(--dark);}
+.comp-tbl tbody td{padding:8px 12px;text-align:center;color:var(--text);
+  font-size:11px;border-right:1px solid var(--border);}
+.comp-tbl tbody td:first-child{text-align:left;font-weight:700;color:var(--subtext);background:#fafcfe;}
+.comp-tbl tbody td:last-child{border-right:none;}
+.comp-tbl tbody td.pos{color:var(--green);font-weight:800;}
+.comp-tbl tbody td.neg{color:var(--red);font-weight:700;}
+.comp-tbl tbody td.hi{color:var(--dark);font-weight:800;}
+.comp-tbl tbody td.winner{background:var(--avista-lt);color:var(--green);font-weight:800;}
+.aviso{background:var(--gold-lt);border:1px solid var(--gold);border-radius:10px;
+  padding:12px 16px;font-size:11px;color:var(--gold-drk);font-weight:600;line-height:1.7;}
+.aviso strong{font-weight:800;}
+.page-footer{text-align:center;font-size:11px;color:#aaa;font-weight:600;font-style:italic;margin-top:18px;}
+</style>
+</head>
+<body>
+<header class="ph">
+<div class="brand">SLV Estratégia Financeira</div>
+<h1>Aquisição de Bens – Gestão Patrimonial</h1>
+<div class="sig">CEA · CVM<br>contato@daianejsilva.com.br</div>
+</header>
+<div class="wrap">
+<div class="hero">
+<h2>Comparativo de Aquisição de Imóvel</h2>
+<p>Compare as quatro modalidades e identifique a melhor estratégia para o seu perfil</p>
+</div>
+<div class="cards-grid">
+<div class="mod-card">
+<div class="mod-card-hdr avista">
+<span class="emoji">💵</span>
+<span class="badge">⭐ Menor custo</span>
+<h3>À Vista</h3>
+</div>
+<div class="mod-card-body">
+<div class="mod-row destaque"><span class="mlbl">Valor total pago</span><span class="mval hi" id="av-total">R$ 500.000,00</span></div>
+<div class="mod-row"><span class="mlbl">Custo financeiro</span><span class="mval pos" id="av-custo">R$ 0,00</span></div>
+<div class="mod-row"><span class="mlbl">Entrada necessária</span><span class="mval" id="av-entrada">R$ 500.000,00</span></div>
+<div class="mod-row"><span class="mlbl">Parcela mensal</span><span class="mval" id="av-parcela">—</span></div>
+<div class="mod-row"><span class="mlbl">Custo oportunidade</span><span class="mval neg" id="av-oport">R$ 864.629,31</span></div>
+<div class="mod-row"><span class="mlbl">Prazo</span><span class="mval pos" id="av-prazo">Imediato</span></div>
+</div>
+</div>
+<div class="mod-card">
+<div class="mod-card-hdr sac">
+<span class="emoji">🏠</span>
+<h3>SAC</h3>
+</div>
+<div class="mod-card-body">
+<div class="mod-row destaque"><span class="mlbl">Valor total pago</span><span class="mval hi" id="sac-total">R$ 1.103.242,24</span></div>
+<div class="mod-row"><span class="mlbl">Juros totais</span><span class="mval neg" id="sac-juros">R$ 603.242,24</span></div>
+<div class="mod-row"><span class="mlbl">Entrada</span><span class="mval" id="sac-entrada">R$ 100.000,00</span></div>
+<div class="mod-row"><span class="mlbl">Parcela inicial</span><span class="mval" id="sac-parc-ini">R$ 4.453,17</span></div>
+<div class="mod-row"><span class="mlbl">Parcela final (aprox.)</span><span class="mval pos" id="sac-parc-fin">R$ 1.120,39</span></div>
+<div class="mod-row"><span class="mlbl">Prazo</span><span class="mval" id="sac-prazo">360 meses</span></div>
+</div>
+</div>
+<div class="mod-card">
+<div class="mod-card-hdr price">
+<span class="emoji">🏦</span>
+<h3>Price</h3>
+</div>
+<div class="mod-card-body">
+<div class="mod-row destaque"><span class="mlbl">Valor total pago</span><span class="mval hi" id="pr-total">R$ 1.366.490,52</span></div>
+<div class="mod-row"><span class="mlbl">Juros totais</span><span class="mval neg" id="pr-juros">R$ 866.490,52</span></div>
+<div class="mod-row"><span class="mlbl">Entrada</span><span class="mval" id="pr-entrada">R$ 100.000,00</span></div>
+<div class="mod-row"><span class="mlbl">Parcela fixa</span><span class="mval" id="pr-parcela">R$ 3.518,03</span></div>
+<div class="mod-row"><span class="mlbl">Parcela final</span><span class="mval" id="pr-parc-fin">R$ 3.518,03</span></div>
+<div class="mod-row"><span class="mlbl">Prazo</span><span class="mval" id="pr-prazo">360 meses</span></div>
+</div>
+</div>
+<div class="mod-card">
+<div class="mod-card-hdr cons">
+<span class="emoji">🤝</span>
+<h3>Consórcio</h3>
+</div>
+<div class="mod-card-body">
+<div class="mod-row destaque"><span class="mlbl">Total pago estimado</span><span class="mval hi" id="co-total">R$ 5.917.816,07</span></div>
+<div class="mod-row"><span class="mlbl">Custo sobre carta</span><span class="mval neg" id="co-custo">R$ 5.417.816,07</span></div>
+<div class="mod-row"><span class="mlbl">Entrada</span><span class="mval" id="co-entrada">—</span></div>
+<div class="mod-row"><span class="mlbl">Parcela inicial</span><span class="mval" id="co-parcela">R$ 2.453,77</span></div>
+<div class="mod-row"><span class="mlbl">Contemplação</span><span class="mval neg" id="co-contemp">Sorteio / lance</span></div>
+<div class="mod-row"><span class="mlbl">Prazo</span><span class="mval" id="co-prazo">20 anos</span></div>
+</div>
+</div>
+</div>
+<div class="charts-row">
+<div class="chart-card">
+<div class="ct">📊 Custo Total por Modalidade</div>
+<canvas id="chartCusto"></canvas>
+</div>
+<div class="chart-card">
+<div class="ct">💳 Parcela Inicial Mensal</div>
+<canvas id="chartParcela"></canvas>
+</div>
+</div>
+<div class="comp-block">
+<div class="comp-block-hdr">📊 Tabela Comparativa Detalhada</div>
+<table class="comp-tbl">
+<thead>
+<tr>
+<th style="width:22%">Critério</th>
+<th class="h-avista">🟢 À Vista</th>
+<th class="h-sac">🔵 Financ. SAC</th>
+<th class="h-price">🟣 Financ. Price</th>
+<th class="h-cons">🟠 Consórcio</th>
+</tr>
+</thead>
+<tbody>
+<tr><td>Valor do imóvel</td><td>R$ 500.000,00</td><td>R$ 500.000,00</td><td>R$ 500.000,00</td><td>R$ 500.000,00</td></tr>
+<tr><td>Entrada necessária</td><td>R$ 500.000,00</td><td>R$ 100.000,00</td><td>R$ 100.000,00</td><td>—</td></tr>
+<tr><td>Valor financiado</td><td>—</td><td>R$ 400.000,00</td><td>R$ 400.000,00</td><td>R$ 500.000,00</td></tr>
+<tr><td>Parcela inicial</td><td>—</td><td>R$ 4.453,17</td><td>R$ 3.518,03</td><td>R$ 2.453,77</td></tr>
+<tr><td>Parcela final</td><td>—</td><td>R$ 1.120,39</td><td>R$ 3.518,03</td><td>Varia (INCC)</td></tr>
+<tr class="sec-row"><td>Juros / custo financeiro</td><td class="pos">R$ 0,00</td><td class="neg">R$ 603.242,24</td><td class="neg">R$ 866.490,52</td><td class="neg">R$ 5.417.816,07</td></tr>
+<tr class="sec-row"><td>Total pago</td><td class="winner">R$ 500.000,00</td><td class="hi">R$ 1.103.242,24</td><td class="hi">R$ 1.366.490,52</td><td class="neg">R$ 5.917.816,07</td></tr>
+<tr><td>Prazo</td><td>Imediato</td><td>360 meses</td><td>360 meses</td><td>20 anos</td></tr>
+<tr><td>Contemplação imediata</td><td class="pos">✅ Sim</td><td class="pos">✅ Sim</td><td class="pos">✅ Sim</td><td class="neg">⚠️ Sorteio/lance</td></tr>
+<tr><td>Risco de não contemplar</td><td>—</td><td>—</td><td>—</td><td class="neg">⚠️ Alto</td></tr>
+<tr class="sec-row"><td>⭐ Melhor critério único</td><td class="winner">✅ Menor custo total</td><td class="hi">Parcela decrescente</td><td class="hi">Parcela fixa</td><td>Sem juros nominais</td></tr>
+</tbody>
+</table>
+</div>
+<div class="aviso">
+<strong>⚠️ Importante:</strong> Esta simulação é meramente educacional. Os valores são estimativas baseadas em parâmetros inseridos. Rentabilidade passada não garante retorno futuro. Consulte sempre um profissional habilitado antes de tomar decisões de investimento ou financiamento.
+</div>
+</div>
+<footer class="page-footer" style="margin-bottom:20px;">
+  Daiane Jaqueline da Silva Soares &nbsp;|&nbsp; Planejadora Financeira · CEA | CVM &nbsp;|&nbsp; contato@daianejsilva.com.br
+</footer>
+<script>
+new Chart(document.getElementById('chartCusto'), {
+  type: 'bar',
+  data: {
+    labels: ['À Vista', 'SAC', 'Price', 'Consórcio'],
+    datasets: [{
+      label: 'Total Pago (R$)',
+      data: [500000, 1103242.24, 1366490.52, 5917816.07],
+      backgroundColor: ['#27AE60','#0C769E','#8E44AD','#E67E22'],
+      borderRadius: 6, borderSkipped: false,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2}) } } },
+    scales: { x: { ticks: { font: { family:'Nunito', size:11, weight:'700' } } }, y: { ticks: { font: { size: 10 }, callback: v => 'R$' + (v/1000).toFixed(0) + 'k' } } },
+    animation: { duration: 600 }
+  }
+});
+new Chart(document.getElementById('chartParcela'), {
+  type: 'bar',
+  data: {
+    labels: ['À Vista', 'SAC', 'Price', 'Consórcio'],
+    datasets: [{
+      label: 'Parcela Inicial (R$)',
+      data: [0, 4453.17, 3518.03, 2453.77],
+      backgroundColor: ['#27AE60','#0C769E','#8E44AD','#E67E22'],
+      borderRadius: 6, borderSkipped: false,
+    }]
+  },
+  options: {
+    plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR',{minimumFractionDigits:2}) } } },
+    scales: { x: { ticks: { font: { family:'Nunito', size:11, weight:'700' } } }, y: { ticks: { font: { size: 10 }, callback: v => 'R$' + v.toLocaleString('pt-BR',{minimumFractionDigits:0}) } } },
+    animation: { duration: 600 }
+  }
+});
+</script>
+</body>
+</html>
