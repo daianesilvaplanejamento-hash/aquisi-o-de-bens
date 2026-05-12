@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avaliação de Consórcio – SLV Estratégia Financeira</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --dark:#0C769E;--mid:#31AFBE;--light:#DAEEF3;--offwht:#F3F3F3;
+  --white:#FFFFFF;--gold:#E8C04A;--gold-lt:#FFF8E1;--gold-drk:#7a5500;
+  --green:#27AE60;--green-lt:#eafaf1;--red:#C0392B;--yellow:#F9E547;
+  --border:#b8dde8;--shadow:0 2px 14px rgba(12,118,158,.10);
+  --text:#1a1a1a;--subtext:#555;
+}
+body{font-family:'Nunito',sans-serif;background:var(--offwht);min-height:100vh;}
+.ph{background:var(--dark);padding:14px 36px;display:flex;align-items:center;justify-content:space-between;}
+.ph .brand{color:#fff;font-size:12px;font-weight:700;opacity:.8;}
+.ph h1{color:#fff;font-size:18px;font-weight:800;letter-spacing:1px;text-transform:uppercase;}
+.ph .sig{color:#fff;font-size:11px;font-weight:600;opacity:.7;text-align:right;line-height:1.6;}
+.wrap{max-width:1200px;margin:24px auto;padding:0 18px 50px;}
+.sec-title{background:var(--dark);color:#fff;text-align:center;font-size:20px;font-weight:800;
+  font-style:italic;padding:14px;border-radius:10px;margin-bottom:20px;letter-spacing:.5px;}
+.params-area{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;}
+.param-card{background:var(--white);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;}
+.param-card .pc-title{background:var(--mid);color:#fff;font-size:11px;font-weight:800;
+  text-align:center;padding:8px 12px;text-transform:uppercase;letter-spacing:.3px;}
+.param-card .pc-val{padding:10px 14px;text-align:center;font-size:15px;font-weight:800;color:var(--dark);}
+.param-card .pc-val input{width:100%;border:none;background:transparent;text-align:center;
+  font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--dark);outline:none;}
+.param-card .pc-val input:focus{background:#d4eef5;border-radius:4px;}
+.pc-money{position:relative;display:flex;align-items:center;justify-content:center;}
+.pc-money .rs-prefix{position:absolute;left:14px;font-size:14px;font-weight:800;color:var(--dark);pointer-events:none;}
+.pc-money input{padding-left:32px !important;}
+.taxas-card{background:var(--white);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px;}
+.taxas-grid{display:grid;grid-template-columns:1fr 1fr 1fr auto auto;}
+.tx-cell{border-right:1px solid var(--border);}
+.tx-cell:last-child{border-right:none;}
+.tx-cell .tc-hdr{background:var(--dark);color:#fff;font-size:10px;font-weight:800;
+  text-transform:uppercase;padding:7px 10px;text-align:center;letter-spacing:.3px;}
+.tx-cell .tc-hdr.gold{background:var(--gold);color:var(--gold-drk);}
+.tx-cell .tc-val{padding:8px 10px;text-align:center;font-size:12px;font-weight:800;color:var(--dark);}
+.tx-cell .tc-val input{width:100%;border:none;background:transparent;
+  font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;color:var(--dark);
+  text-align:center;outline:none;}
+.tx-cell .tc-val input:focus{background:#d4eef5;border-radius:3px;}
+.tx-cell .tc-val.computed{background:var(--light);}
+.tc-money{position:relative;display:flex;align-items:center;justify-content:center;}
+.tc-money .rs-prefix{position:absolute;left:8px;font-size:12px;font-weight:800;color:var(--dark);pointer-events:none;}
+.tc-money input{padding-left:24px !important;}
+.tbl-block{background:var(--white);border-radius:10px;box-shadow:var(--shadow);overflow:hidden;}
+.tbl-scroll{overflow-y:auto;max-height:520px;}
+.tbl-scroll::-webkit-scrollbar{width:5px;}
+.tbl-scroll::-webkit-scrollbar-thumb{background:var(--mid);border-radius:3px;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead th{position:sticky;top:0;z-index:2;background:var(--dark);color:#fff;
+  font-weight:800;font-size:10px;text-transform:uppercase;letter-spacing:.3px;
+  padding:8px 8px;text-align:center;border-right:1px solid rgba(255,255,255,.15);}
+thead th:last-child{border-right:none;}
+tbody tr{border-bottom:1px solid var(--border);}
+tbody tr:nth-child(even){background:#f7fbfc;}
+tbody tr:hover{background:#e4f3f8;}
+tbody td{padding:7px 8px;text-align:center;color:var(--text);font-size:11px;border-right:1px solid var(--border);}
+tbody td:last-child{border-right:none;}
+tbody td.mes-cell{background:var(--light);color:var(--dark);font-weight:800;}
+tbody td.ano-cell{background:var(--gold);color:var(--gold-drk);font-weight:800;}
+tbody td.hi{color:var(--dark);font-weight:700;}
+tbody td.pos{color:var(--green);font-weight:700;}
+tfoot tr td{background:var(--dark);color:#fff;font-weight:800;font-size:11px;
+  padding:7px;text-align:center;border-right:1px solid rgba(255,255,255,.2);}
+.page-footer{text-align:center;font-size:11px;color:#aaa;font-weight:600;font-style:italic;margin-top:18px;}
+</style>
+</head>
+<body>
+<header class="ph">
+<div class="brand">SLV Estratégia Financeira</div>
+<h1>Avaliação de Consórcio</h1>
+<div class="sig">CEA · CVM<br>contato@daianejsilva.com.br</div>
+</header>
+<div class="wrap">
+<div class="sec-title">Avaliação de Consórcio</div>
+<div class="params-area">
+<div class="param-card">
+<div class="pc-title">Prazo do Contrato (anos)</div>
+<div class="pc-val"><input type="number" id="prazoAnos" value="20" min="1" max="40" oninput="recalc()"></div>
+</div>
+<div class="param-card">
+<div class="pc-title">Valor Final do Contrato</div>
+<div class="pc-val">
+<div class="pc-money">
+<span class="rs-prefix">R$</span>
+<input type="text" id="valorContrato" value="0,00" oninput="formatMoneyInput(this);recalc()" onblur="formatMoneyBlur(this)" onkeydown="return allowMoneyKey(event)">
+</div>
+</div>
+</div>
+<div class="param-card">
+<div class="pc-title">Correção Considerada (INCC % a.a.)</div>
+<div class="pc-val"><input type="number" id="correcaoAnual" value="6.9705" min="0" step="0.0001" oninput="recalc()"></div>
+</div>
+</div>
+<div class="taxas-card">
+<div class="taxas-grid">
+<div class="tx-cell">
+<div class="tc-hdr">Valor da Carta</div>
+<div class="tc-val">
+<div class="tc-money">
+<span class="rs-prefix">R$</span>
+<input type="text" id="valorCarta" value="0,00" oninput="formatMoneyInput(this);recalc()" onblur="formatMoneyBlur(this)" onkeydown="return allowMoneyKey(event)">
+</div>
+</div>
+</div>
+<div class="tx-cell">
+<div class="tc-hdr">Tx. Adm (%)</div>
+<div class="tc-val"><input type="number" id="txAdm" value="15.75" min="0" step="0.01" oninput="recalc()"></div>
+</div>
+<div class="tx-cell">
+<div class="tc-hdr">Fundo de Reserva (%)</div>
+<div class="tc-val"><input type="number" id="fundoReserva" value="2.00" min="0" step="0.01" oninput="recalc()"></div>
+</div>
+<div class="tx-cell">
+<div class="tc-hdr">Seguro Pessoal (%)</div>
+<div class="tc-val"><input type="number" id="seguro" value="0.0310" min="0" step="0.0001" oninput="recalc()"></div>
+</div>
+<div class="tx-cell">
+<div class="tc-hdr gold">Soma (%)</div>
+<div class="tc-val computed" id="somaTotal">17,7810%</div>
+</div>
+<div class="tx-cell">
+<div class="tc-hdr gold">Valor Inicial (parcela)</div>
+<div class="tc-val computed" id="valorInicial">R$ —</div>
+</div>
+</div>
+</div>
+<div class="tbl-block">
+<div class="tbl-scroll">
+<table>
+<thead>
+<tr>
+<th style="width:8%">N° Meses</th>
+<th style="width:6%">N° Ano</th>
+<th style="width:14%">Saldo Inicial</th>
+<th style="width:14%">Parcela ao Mês</th>
+<th style="width:14%">Valor Pago no Ano</th>
+<th style="width:16%">Carta no Final de 12m</th>
+<th style="width:14%">Correção INCC</th>
+<th style="width:14%">Carta Atualizada</th>
+</tr>
+</thead>
+<tbody id="consorcioBody"></tbody>
+<tfoot id="consorcioFoot"></tfoot>
+</table>
+</div>
+</div>
+<footer class="page-footer" style="margin-top:20px;">
+    Daiane Jaqueline da Silva Soares &nbsp;|&nbsp; Planejadora Financeira · CEA | CVM &nbsp;|&nbsp; contato@daianejsilva.com.br
+</footer>
+</div>
+<script>
+const fmtBRL = v => isFinite(v)&&!isNaN(v) ? v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'}) : 'R$ —';
+const fmtPct = (v,d=4) => isFinite(v)&&!isNaN(v) ? (v).toFixed(d).replace('.',',')+'%' : '—';
+function allowMoneyKey(e){
+  const allowed = ['Backspace','Delete','ArrowLeft','ArrowRight','Tab','Home','End'];
+  if(allowed.includes(e.key)) return true;
+  if(e.key === ',' || e.key === '.') return true;
+  if(e.key >= '0' && e.key <= '9') return true;
+  e.preventDefault(); return false;
+}
+function parseMoneyInput(el){
+  let raw = el.value.replace(/[^\d,\.]/g,'');
+  raw = raw.replace(/\./g,'').replace(',','.');
+  return parseFloat(raw) || 0;
+}
+function formatMoneyInput(el){ el.value = el.value.replace(/[^\d,\.]/g,''); }
+function formatMoneyBlur(el){
+  const v = parseMoneyInput(el);
+  el.value = v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  recalc();
+}
+function recalc(){
+  const prazoAnos = parseInt(document.getElementById('prazoAnos').value) || 20;
+  const valorContrato = parseMoneyInput(document.getElementById('valorContrato'));
+  const correcaoAnual = parseFloat(document.getElementById('correcaoAnual').value) || 6.9705;
+  const valorCarta = parseMoneyInput(document.getElementById('valorCarta'));
+  const txAdm = parseFloat(document.getElementById('txAdm').value) || 15.75;
+  const fundoRes = parseFloat(document.getElementById('fundoReserva').value) || 2.00;
+  const seguro = parseFloat(document.getElementById('seguro').value) || 0.0310;
+  const soma = txAdm + fundoRes + seguro;
+  document.getElementById('somaTotal').textContent = fmtPct(soma);
+  const totalMeses = prazoAnos * 12;
+  const totalCusto = valorCarta > 0 ? valorCarta * (1 + soma/100) : 0;
+  const parcelaMes = totalMeses > 0 ? totalCusto / totalMeses : 0;
+  document.getElementById('valorInicial').textContent = fmtBRL(parcelaMes);
+  const inccMes = Math.pow(1 + correcaoAnual/100, 1/12) - 1;
+  const tbody = document.getElementById('consorcioBody');
+  tbody.innerHTML = '';
+  let saldoIni = valorCarta;
+  let totalPago = 0;
+  for(let ano = 1; ano <= prazoAnos; ano++){
+    const mesesRestantes = totalMeses - (ano - 1) * 12;
+    const parcelaAno = mesesRestantes > 0 ? (saldoIni * (1 + soma/100)) / mesesRestantes : 0;
+    const valorPagoAno = parcelaAno * 12;
+    totalPago += valorPagoAno;
+    const cartaFinal12 = saldoIni - valorPagoAno;
+    const correcaoValor = saldoIni * (Math.pow(1+inccMes,12) - 1);
+    const cartaAtual = cartaFinal12 + correcaoValor;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="mes-cell">${mesesRestantes}</td>
+      <td class="ano-cell">${ano}</td>
+      <td>${fmtBRL(saldoIni)}</td>
+      <td class="hi">${fmtBRL(parcelaAno)}</td>
+      <td class="hi">${fmtBRL(valorPagoAno)}</td>
+      <td>${fmtBRL(Math.max(0, cartaFinal12))}</td>
+      <td class="pos">${fmtBRL(correcaoValor)}</td>
+      <td class="hi">${fmtBRL(Math.max(0, cartaAtual))}</td>
+    `;
+    tbody.appendChild(tr);
+    saldoIni = Math.max(0, cartaAtual);
+    if(saldoIni <= 0.01) break;
+  }
+  document.getElementById('consorcioFoot').innerHTML = `<tr>
+    <td colspan="3">Total Pago</td>
+    <td>—</td>
+    <td>${fmtBRL(totalPago)}</td>
+    <td colspan="3">—</td>
+  </tr>`;
+}
+window.onload = recalc;
+</script>
+</body>
+</html>
