@@ -1,0 +1,1 @@
+# aquisi-o-de-bens
